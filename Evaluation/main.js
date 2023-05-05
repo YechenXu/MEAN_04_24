@@ -8,6 +8,7 @@ const Api =(()=>{
 
 // View => user interface
 const View = (()=>{
+    
     let domSelector = {
         container: ".content",
         inputBox: "#user-input",
