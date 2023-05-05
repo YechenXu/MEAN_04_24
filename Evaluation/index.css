@@ -1,0 +1,43 @@
+body{
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    font: Arial;
+    flex:1;
+}
+
+header {
+    display:flex;
+    align-items: center;
+    position: relative;
+    top: 45%;
+    left: 45%;
+    font-size:xx-large;
+    font-weight: bolder;
+    
+}
+.content {
+    position: relative;
+    top: 45%;
+    left: 45%;
+}
+.guess_time{
+
+}
+.random_letter{
+}
+#user-input {
+    position: relative;
+    top: 50%;
+    left: 50%;
+}
+#resetBtn {
+    background-color: #007BFF;
+    position: relative;
+    top: 50%;
+    left: 50%;
+}
+#resetBtn:hover {
+    background-color: #0056B3;
+} 
