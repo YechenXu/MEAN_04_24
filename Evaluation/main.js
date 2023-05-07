@@ -8,11 +8,12 @@ const Api =(()=>{
 
 // View => user interface
 const View = (()=>{
-    
     let domSelector = {
         container: ".content",
         inputBox: "#user-input",
-        btn:"#resetBtn"
+        btn:"#resetBtn",
+        guess: ".guess_history",
+        myTimer: ".my_timer",
     }
     
     const creatTmp = (word, guess)=>{
@@ -23,6 +24,23 @@ const View = (()=>{
         <p class="random_letter">${output_word}</p>`;
         return template;
     }
+
+    const guessHistory = (history)=> {
+        let template = `<span>Guessed letters:</span>`;
+        for (const [key, value] of Object.entries(history)) {
+            if (value === true) {
+                template += `<span class='t'> ${key}</span>`;
+            } else {
+                template += `<span class='f'> ${key}</span>`;
+            }
+          }
+        return template;
+    }
+
+    const myTimer =(time)=> {
+        let template = `<span>Time Left: ${time}s</span>`;
+        return template;
+    }
     
     const render = (ele, template)=>{
         ele.innerHTML = template;
@@ -31,6 +49,8 @@ const View = (()=>{
     return {
         domSelector,
         creatTmp,
+        guessHistory,
+        myTimer,
         render
     }
 })();
@@ -39,15 +59,30 @@ const View = (()=>{
 
 // Model => retrieve data, store data, modify data & update the View
 const Model = ((api, view)=>{
-    const { domSelector, creatTmp, render } = view;
+    const { domSelector, creatTmp, guessHistory, myTimer, render } = view;
     const { getData } = api;
 
     class State{
         constructor(){
             this._w = [];
             this._g = 0;  //current guess
-            this._hiddeIndexes = [];
-            this._origin = [];
+            this._origin = []; // record all hidden characters
+            this._history = new Object; // record all input characters and correct or not
+        }
+
+        renderView() {
+            let tmp = creatTmp(this._w, this._g);
+            let wordContainer = document.querySelector(domSelector.container);
+            render(wordContainer, tmp);
+            let guessTmp = guessHistory(this._history);
+            let guessContainer = document.querySelector(domSelector.guess);
+            render(guessContainer, guessTmp);
+        }
+
+        set renderTimer(time) {
+            let timeContainer = document.querySelector(domSelector.myTimer);
+            let timeTmp = myTimer(time)
+            render(timeContainer, timeTmp);
         }
 
         set generateWord(word){
@@ -63,39 +98,43 @@ const Model = ((api, view)=>{
                 hiddenIndexes.add(randomIndex);
             }
 
-            this._hiddeIndexes = [];
-            this._origin = [];
+            this._origin = Array(word.length); 
             for (const index of hiddenIndexes) {
-                this._origin.push(charArray[index]);
-                this._hiddeIndexes.push(index);
+                this._origin[index] = charArray[index];
                 charArray[index] = '_';
             }
 
             this._w = charArray;
             this._g = 0;  //current guess
-            let tmp = creatTmp(this._w, this._g);
-            let todoContainer = document.querySelector(domSelector.container);
+            this._history = new Object;
+            this.renderView();
             console.log(this._origin);
-            render(todoContainer, tmp);
         }
 
         set updateWord(input){
-            if (input.length != 0){
-                if (this._origin.includes(input)) {
-                    let hidIndex = this._origin.indexOf(input);
-                    let wordIndex = this._hiddeIndexes[hidIndex];
-                    this._w[wordIndex] = input;
-                    console.log(this._w);
-                    this._origin[hidIndex] = '_';
-                    console.log(this._origin);
-                    console.log(this._hiddeIndexes);
-                }else {
+            if (Object.keys(this._history).includes(input)) {
+                alert('Letter already in the history list');
+            } else if (input.length != 0){
+                let flag = 0;
+                this._origin.forEach((element, index) => {
+                    if (element === input) {
+                        this._w[index] = input;
+                        console.log(this._w);
+                        this._origin[index] = '*';
+                        console.log(this._origin);
+                        console.log(this._hiddeIndexes);
+                        flag ++;
+                    }
+                })
+
+                if (flag === 0 ) {
                     this._g ++;
+                    this._history[input] = false;
+                } else {
+                    this._history[input] = true;
                 }
 
-                let tmp = creatTmp(this._w, this._g);
-                let todoContainer = document.querySelector(domSelector.container);
-                render(todoContainer, tmp);
+                this.renderView();
             }
         }
         
@@ -132,7 +171,7 @@ const Controller = ((view, model)=>{
                 });
             } else if(state._g == 10) {
                 let correct = 0;
-                state._origin.forEach(e => {if(e != '_'){correct += 1}})
+                state._origin.forEach(e => {if(e === '*'){correct += 1}})
                 alert(`Game over! You have guessed ${correct} words!`);
                 getData.then((data) => {
                     state.generateWord = data;
@@ -153,11 +192,28 @@ const Controller = ((view, model)=>{
             }
         });
     }
+
+    // set timer for every 60 secs
+    const myTimer = () => {
+        var current_time = 60;
+        setInterval(function() {
+            current_time --;
+            state.renderTimer = current_time;
+            if (current_time === 0) {
+                alert("Time Limit Exceed");
+                getData.then((data) => {
+                    state.generateWord = data;
+                });
+                current_time = 60;
+            }
+        }, 1000)
+    }
     
     // wrap all function
     const bootstrap = ()=>{
         init();
         addTodo();
+        myTimer();
     }
 
     return {

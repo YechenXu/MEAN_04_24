@@ -19,18 +19,21 @@ header {
     align-items: center;
     flex-direction: column;
 }
-.guess_time{
-
+.f{
+    color: red;
 }
-.random_letter{
+.t{
+    color: green;
 }
 #user-input {
     border-color: pink;
     width: 20vh;
 }
 #resetBtn {
+    margin-top: 10px;
     background-color: #007BFF;
     width: 20vh;
+    border-radius: 5%;
 
 }
 #resetBtn:hover {
