@@ -3,23 +3,21 @@ body{
     padding: 0;
     width: 100vw;
     height: 100vh;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
     font: Arial;
     flex:1;
 }
 header {
-    display:flex;
-    align-items: center;
-    position: relative;
-    top: 45%;
-    left: 45%;
+    margin-top: 40vh;
     font-size:xx-large;
     font-weight: bolder;
-    
 }
 .content {
-    position: relative;
-    top: 45%;
-    left: 45%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
 }
 .guess_time{
 
@@ -27,15 +25,13 @@ header {
 .random_letter{
 }
 #user-input {
-    position: relative;
-    top: 50%;
-    left: 50%;
+    border-color: pink;
+    width: 20vh;
 }
 #resetBtn {
     background-color: #007BFF;
-    position: relative;
-    top: 50%;
-    left: 50%;
+    width: 20vh;
+
 }
 #resetBtn:hover {
     background-color: #0056B3;
